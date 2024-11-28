@@ -15,6 +15,9 @@ class BookApiController extends Controller
         $this->registerBook = $registerBook;
     }
 
+    /**
+     * Create Book on database
+     * **/
     public function registerBook(Request $request)
     {
         // dd($request->all());
