@@ -20,32 +20,90 @@ class BookApiController extends Controller
      * **/
     public function registerBook(Request $request)
     {
-        // dd($request->all());
-        $this->registerBook->create(
-            $request->Category,
-            $request->Book,
-            $request->Drawer,
-            $request->Author,
-        );
+        try {
+            $book = $this->registerBook->create(
+                $request->Category,
+                $request->Book,
+                $request->Drawer,
+                $request->Author,
+            );
+
+            return response()->json([
+                'message' => 'Book created successfully',
+                'data' => $book,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error creating book',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function getBook(Request $request)
     {
-        $this->registerBook->getBook($request->id);
+        try {
+            $book = $this->registerBook->getBook($request->id);
+
+            return response()->json(['data' => $book]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error fetching book',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function updateBook(Request $request)
     {
-        $this->registerBook->updateBook($request->id, $request->all());
+        try {
+            $book = $this->registerBook->update(
+                $request->id,
+                $request->Category,
+                $request->Bookname,
+                $request->Drawer,
+                $request->Author
+            );
+
+            return response()->json([
+                'message' => 'Book updated successfully',
+                'data' => $book,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error updating book',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function deleteBook(Request $request)
     {
-        $this->registerBook->deleteBook($request->id);
+        try {
+            $this->registerBook->deleteBook($request->id);
+
+            return response()->json([
+                'message' => 'Book deleted successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error deleting book',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function getFindAllBook(Request $request)
     {
-        $this->registerBook->getFindAllBook();
+        try {
+            $books = $this->registerBook->getFindAllBook();
+
+            return response()->json(['data' => $books]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error fetching books',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

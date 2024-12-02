@@ -8,9 +8,9 @@ interface BookRepository
 
     public function create(Book $book): void;
 
+    public function findById(string $id): ?Book;
+
     public function update(Book $book): void;
 
     public function delete(string $id): void;
-
-    public function findByID(string $id): ?Book;
 }

@@ -31,20 +31,29 @@ class RegisterBook
         $this->bookRepository->create($data);
     }
 
-    public function update(string $id, string $Category, string $Bookname, string $Drawer, string $Author)
-    {
-        $bookModel = $this->bookRepository->findByID($id);
+    public function update(
+        string $id,
+        string $Category,
+        string $Bookname,
+        string $Drawer,
+        string $Author
+    ): ?Book {
+        $bookModel = $this->bookRepository->findById($id);
         if (! $bookModel) {
-            return response()->json(['message' => 'Book not found.']);
+            throw new \Exception('Book not found.');
         }
+
         $data = new Book(
-            null,
+            $id,
             $Category,
             $Bookname,
             $Drawer,
-            $Author,
+            $Author
         );
+
         $this->bookRepository->update($data);
+
+        return $data;
     }
 
     public function findByID(string $id)
@@ -60,5 +69,15 @@ class RegisterBook
     public function delete(string $id)
     {
         return $this->bookRepository->delete($id);
+    }
+
+    public function getBook(string $id): ?Book
+    {
+        return $this->bookRepository->findById($id);
+    }
+
+    public function getFindAllBook(): array
+    {
+        return $this->bookRepository->findAll();
     }
 }

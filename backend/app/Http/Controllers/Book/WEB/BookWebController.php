@@ -21,8 +21,9 @@ class BookWebController extends Controller
             $request->Drawer,
             $request->Author,
         );
+
         return redirect()->route('book.add');
-        
+
     }
 
     public function getBook(Request $request)
@@ -42,7 +43,15 @@ class BookWebController extends Controller
 
     public function getFindAllBook(Request $request)
     {
-        $this->registerBook->getFindAllBook();
-    }
+        try {
+            $books = $this->registerBook->getFindAllBook();
 
+            return response()->json(['data' => $books]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error fetching books',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
