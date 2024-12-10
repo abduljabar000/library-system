@@ -5,47 +5,104 @@ namespace App\Http\Controllers\Book\API;
 use App\Application\Book\RegisterBook;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class BookApiController extends Controller
 {
-    private RegisterBook $registerBook;
+    public function __construct(
+        private readonly RegisterBook $registerBook
+    ) {}
 
-    public function __construct(RegisterBook $registerBook)
+    public function index(): JsonResponse
     {
-        $this->registerBook = $registerBook;
+        try {
+            $books = $this->registerBook->findAll();
+            return response()->json([
+                'status' => 'success',
+                'data' => array_map(fn($book) => $book->toArray(), $books)
+            ]);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
-    /**
-     * Create Book on database
-     * **/
-    public function registerBook(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        // dd($request->all());
-        $this->registerBook->create(
-            $request->Category,
-            $request->Book,
-            $request->Drawer,
-            $request->Author,
-        );
+        try {
+            $validated = $request->validate([
+                'category' => 'required|string',
+                'name' => 'required|string',
+                'drawer' => 'required|string',
+                'author' => 'required|string',
+            ]);
+
+            $book = $this->registerBook->create(
+                $validated['category'],
+                $validated['name'],
+                $validated['drawer'],
+                $validated['author']
+            );
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $book->toArray()
+            ], 201);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
-    public function getBook(Request $request)
+    public function show(string $id): JsonResponse
     {
-        $this->registerBook->getBook($request->id);
+        try {
+            $book = $this->registerBook->findById($id);
+            return response()->json([
+                'status' => 'success',
+                'data' => $book->toArray()
+            ]);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
-    public function updateBook(Request $request)
+    public function update(Request $request, string $id): JsonResponse
     {
-        $this->registerBook->updateBook($request->id, $request->all());
+        try {
+            $validated = $request->validate([
+                'category' => 'string',
+                'name' => 'string',
+                'drawer' => 'string',
+                'author' => 'string',
+            ]);
+
+            $book = $this->registerBook->updateBook($id, $validated);
+            return response()->json([
+                'status' => 'success',
+                'data' => $book->toArray()
+            ]);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
-    public function deleteBook(Request $request)
+    public function delete(string $id): JsonResponse
     {
-        $this->registerBook->deleteBook($request->id);
+        try {
+            $this->registerBook->deleteBook($id);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Book deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
-    public function getFindAllBook(Request $request)
+    private function errorResponse(string $message): JsonResponse
     {
-        $this->registerBook->getFindAllBook();
+        return response()->json([
+            'status' => 'error',
+            'message' => $message
+        ], 500);
     }
 }

@@ -2,42 +2,41 @@
 
 namespace App\Infrastructure\Persistence\Eloquent\Book;
 
-use App\Domain\Book\Book;
 use App\Domain\Book\BookRepository;
+use App\Models\Book;
 
 class EloquentBookRepository implements BookRepository
 {
-    public function findAll(): array
+    public function findAll()
     {
-        return BookModel::all()->map(
-            fn ($bookModel) => new Book(
-                $bookModel->id,
-                $bookModel->Category,
-                $bookModel->Bookname,
-                $bookModel->Drawer,
-                $bookModel->Author,
-            )
-        )->toArray();
+        return Book::all();
     }
 
-    public function create(Book $book): void
+    public function findById(string $id)
     {
-        // BookModel::create($book);
-        dd($book);
+        return Book::findOrFail($id);
     }
 
-    public function findById(string $id): Book
+    public function create(array $data)
     {
-        return BookModel::find($id);
+        return Book::create([
+            'category' => $data['category'],
+            'name' => $data['name'],
+            'drawer' => $data['drawer'],
+            'author' => $data['author']
+        ]);
     }
 
-    public function update(Book $book): void
+    public function update(string $id, array $data)
     {
-        BookModel::find($id)->update($data);
+        $book = $this->findById($id);
+        $book->update($data);
+        return $book;
     }
 
-    public function delete(string $id): void
+    public function delete(string $id)
     {
-        BookModel::find($id)->delete();
+        $book = $this->findById($id);
+        return $book->delete();
     }
 }

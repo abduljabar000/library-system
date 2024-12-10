@@ -4,13 +4,9 @@ namespace App\Domain\Book;
 
 interface BookRepository
 {
-    public function findAll(): array;
-
-    public function create(Book $book): void;
-
-    public function update(Book $book): void;
-
-    public function delete(string $id): void;
-
-    public function findByID(string $id): ?Book;
+    public function findAll();
+    public function findById(string $id);
+    public function create(array $data);
+    public function update(string $id, array $data);
+    public function delete(string $id);
 }
