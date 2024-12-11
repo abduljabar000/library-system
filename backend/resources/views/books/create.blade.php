@@ -21,8 +21,10 @@
                         </div>
                     @endif
 
+                    
+                    
                     <form action="{{ route('book.store') }}" method="POST">
-                        @csrf
+                       
                         <div class="mb-3">
                             <label for="category" class="form-label">Category</label>
                             <input type="text" class="form-control" id="category" name="category" value="{{ old('category') }}" required>

@@ -43,6 +43,9 @@ class BookWebController extends Controller
 
     public function store(Request $request)
     {
+        // Log the incoming request data
+        \Log::info('Store Book Request Data:', $request->all());
+
         $validated = $request->validate([
             'category' => 'required|string',
             'name' => 'required|string',
@@ -59,16 +62,21 @@ class BookWebController extends Controller
             );
             return redirect()->route('book.index')->with('success', 'Book added successfully');
         } catch (\Exception $e) {
+            // Log the error message
+            \Log::error('Error adding book: ' . $e->getMessage());
             return back()->withInput()->with('error', 'Error adding book: ' . $e->getMessage());
         }
     }
 
     public function destroy(string $id)
     {
+        \Log::info('Attempting to delete book with ID: ' . $id);
+
         try {
             $this->registerBook->deleteBook($id);
             return redirect()->route('book.index')->with('success', 'Book deleted successfully');
         } catch (\Exception $e) {
+            \Log::error('Error deleting book: ' . $e->getMessage());
             return back()->with('error', 'Error deleting book: ' . $e->getMessage());
         }
     }

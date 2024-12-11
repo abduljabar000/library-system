@@ -9,7 +9,7 @@ Route::prefix('api')->group(function () {
 
 Route::prefix('books')->group(function () {
     Route::get('/', [BookApiController::class, 'index']);
-    Route::post('/', [BookApiController::class, 'store']);
+    Route::post('/create', [BookApiController::class, 'store']);
     Route::get('/{id}', [BookApiController::class, 'show']);
     Route::put('/{id}', [BookApiController::class, 'update']);
     Route::delete('/{id}', [BookApiController::class, 'delete']);
