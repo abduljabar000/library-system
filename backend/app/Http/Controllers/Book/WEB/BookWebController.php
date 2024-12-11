@@ -2,47 +2,99 @@
 
 namespace App\Http\Controllers\Book\WEB;
 
-use App\Application\Book\RegisterBook;
 use App\Http\Controllers\Controller;
+use App\Application\Book\RegisterBook;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class BookWebController extends Controller
 {
-    public function __construct(private RegisterBook $registerBook)
+    public function __construct(
+        private readonly RegisterBook $registerBook
+    ) {}
+
+    public function index(): View
     {
-        $this->registerBook = $registerBook;
+        $books = $this->registerBook->findAll();
+        return view('books.index', compact('books'));
     }
 
-    public function registerBook(Request $request)
+    public function create(): View
     {
-        $this->registerBook->create(
-            $request->Category,
-            $request->Bookname,
-            $request->Drawer,
-            $request->Author,
-        );
-        return redirect()->route('book.add');
-        
+        return view('books.create');
     }
 
-    public function getBook(Request $request)
+    public function show(string $id): View
     {
-        $this->registerBook->getBook($request->id);
+        $book = $this->registerBook->findById($id);
+        return view('books.show', compact('book'));
     }
 
-    public function updateBook(Request $request)
+    public function edit(string $id): View
     {
-        $this->registerBook->updateBook($request->id, $request->all());
+        $book = $this->registerBook->findById($id);
+        return view('books.edit', compact('book'));
     }
 
-    public function deleteBook(Request $request)
+    public function viewArchive(): View
     {
-        $this->registerBook->deleteBook($request->id);
+        return view('books.archive');
     }
 
-    public function getFindAllBook(Request $request)
+    public function store(Request $request)
     {
-        $this->registerBook->getFindAllBook();
+        // Log the incoming request data
+        \Log::info('Store Book Request Data:', $request->all());
+
+        $validated = $request->validate([
+            'category' => 'required|string',
+            'name' => 'required|string',
+            'drawer' => 'required|string',
+            'author' => 'required|string',
+        ]);
+
+        try {
+            $this->registerBook->create(
+                $validated['category'],
+                $validated['name'],
+                $validated['drawer'],
+                $validated['author']
+            );
+            return redirect()->route('book.index')->with('success', 'Book added successfully');
+        } catch (\Exception $e) {
+            // Log the error message
+            \Log::error('Error adding book: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Error adding book: ' . $e->getMessage());
+        }
     }
 
+    public function destroy(string $id)
+    {
+        \Log::info('Attempting to delete book with ID: ' . $id);
+
+        try {
+            $this->registerBook->deleteBook($id);
+            return redirect()->route('book.index')->with('success', 'Book deleted successfully');
+        } catch (\Exception $e) {
+            \Log::error('Error deleting book: ' . $e->getMessage());
+            return back()->with('error', 'Error deleting book: ' . $e->getMessage());
+        }
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'category' => 'required|string',
+            'name' => 'required|string',
+            'drawer' => 'required|string',
+            'author' => 'required|string',
+        ]);
+
+        try {
+            $this->registerBook->updateBook($id, $validated);
+            return redirect()->route('book.index')->with('success', 'Book updated successfully');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Error updating book: ' . $e->getMessage());
+        }
+    }
 }

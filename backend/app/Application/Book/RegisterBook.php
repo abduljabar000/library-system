@@ -2,62 +2,40 @@
 
 namespace App\Application\Book;
 
-use App\Domain\Book\Book;
 use App\Domain\Book\BookRepository;
 
 class RegisterBook
 {
-    private BookRepository $bookRepository;
+    public function __construct(
+        private readonly BookRepository $bookRepository
+    ) {}
 
-    public function __construct(BookRepository $bookRepository)
-    {
-        $this->bookRepository = $bookRepository;
-    }
-
-    public function create(
-        string $Category,
-        string $Bookname,
-        string $Drawer,
-        string $Author,
-    ): void {
-        $data = new Book(
-            null,
-            $Category,
-            $Bookname,
-            $Drawer,
-            $Author,
-        );
-        // dd($data);
-        $this->bookRepository->create($data);
-    }
-
-    public function update(string $id, string $Category, string $Bookname, string $Drawer, string $Author)
-    {
-        $bookModel = $this->bookRepository->findByID($id);
-        if (! $bookModel) {
-            return response()->json(['message' => 'Book not found.']);
-        }
-        $data = new Book(
-            null,
-            $Category,
-            $Bookname,
-            $Drawer,
-            $Author,
-        );
-        $this->bookRepository->update($data);
-    }
-
-    public function findByID(string $id)
-    {
-        return $this->bookRepository->findByID($id);
-    }
-
-    public function findAll(): array
+    public function findAll()
     {
         return $this->bookRepository->findAll();
     }
 
-    public function delete(string $id)
+    public function findById(string $id)
+    {
+        return $this->bookRepository->findById($id);
+    }
+
+    public function create(string $category, string $name, string $drawer, string $author)
+    {
+        return $this->bookRepository->create([
+            'category' => $category,
+            'name' => $name,
+            'drawer' => $drawer,
+            'author' => $author
+        ]);
+    }
+
+    public function updateBook(string $id, array $data)
+    {
+        return $this->bookRepository->update($id, $data);
+    }
+
+    public function deleteBook(string $id)
     {
         return $this->bookRepository->delete($id);
     }

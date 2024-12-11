@@ -2,24 +2,22 @@
 
 namespace App\Providers;
 
+use App\Application\Book\RegisterBook;
 use App\Domain\Book\BookRepository;
 use App\Infrastructure\Persistence\Eloquent\Book\EloquentBookRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
+    public function register()
     {
         $this->app->bind(BookRepository::class, EloquentBookRepository::class);
+        $this->app->bind(RegisterBook::class, function ($app) {
+            return new RegisterBook($app->make(BookRepository::class));
+        });
     }
 
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
+    public function boot()
     {
         //
     }
